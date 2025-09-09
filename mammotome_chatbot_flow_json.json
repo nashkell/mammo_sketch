@@ -1,0 +1,301 @@
+{
+  "nodes": {
+    "WELCOME": {
+      "message": "Hi! I’m here to help you identify the right breast care solution and resources for your practice. Which area would you like to explore?",
+      "options": [
+        { "label": "Find a Biopsy System", "next": "BIOPSY_INTRO" },
+        { "label": "Choose a Localization Method", "next": "LOCALIZATION_INTRO" },
+        { "label": "Optimize Specimen Handling", "next": "SPECIMEN_INTRO" },
+        { "label": "Training & Education", "next": "EDU_INTRO" }
+      ]
+    },
+
+    "BIOPSY_INTRO": {
+      "message": "To guide you to the most appropriate biopsy solution, tell me about your typical guidance modality.",
+      "options": [
+        { "label": "Ultrasound-Guided", "next": "BIOPSY_MODALITY_US" },
+        { "label": "Stereotactic", "next": "BIOPSY_MODALITY_ST" },
+        { "label": "MRI-Guided", "next": "BIOPSY_MODALITY_MRI" },
+        { "label": "Not Sure", "next": "BIOPSY_MODALITY_UNSURE" }
+      ]
+    },
+
+    "BIOPSY_MODALITY_US": {
+      "message": "Ultrasound-guided—what tissue acquisition profile fits your need?",
+      "options": [
+        { "label": "Vacuum-Assisted (larger volume, single insertion)", "next": "BIOPSY_NEED_VAB" },
+        { "label": "Core Biopsy (smaller cores, multiple passes)", "next": "BIOPSY_NEED_CORE" },
+        { "label": "Compare options", "next": "BIOPSY_COMPARE_PREFS" }
+      ]
+    },
+    "BIOPSY_MODALITY_ST": {
+      "message": "Stereotactic—what tissue acquisition profile fits your need?",
+      "options": [
+        { "label": "Vacuum-Assisted", "next": "BIOPSY_NEED_VAB" },
+        { "label": "Core Biopsy", "next": "BIOPSY_NEED_CORE" },
+        { "label": "Compare options", "next": "BIOPSY_COMPARE_PREFS" }
+      ]
+    },
+    "BIOPSY_MODALITY_MRI": {
+      "message": "MRI-guided—what tissue acquisition profile fits your need?",
+      "options": [
+        { "label": "Vacuum-Assisted", "next": "BIOPSY_NEED_VAB" },
+        { "label": "Core Biopsy", "next": "BIOPSY_NEED_CORE" },
+        { "label": "Compare options", "next": "BIOPSY_COMPARE_PREFS" }
+      ]
+    },
+    "BIOPSY_MODALITY_UNSURE": {
+      "message": "No problem. Which approach would you like to start with?",
+      "options": [
+        { "label": "Vacuum-Assisted", "next": "BIOPSY_NEED_VAB" },
+        { "label": "Core Biopsy", "next": "BIOPSY_NEED_CORE" },
+        { "label": "Compare options", "next": "BIOPSY_COMPARE_PREFS" }
+      ]
+    },
+
+    "BIOPSY_NEED_VAB": {
+      "message": "For vacuum-assisted biopsy, what matters most?",
+      "options": [
+        { "label": "Speed & workflow efficiency", "next": "BIOPSY_VAB_RESULTS" },
+        { "label": "Portability / small footprint", "next": "BIOPSY_VAB_RESULTS" },
+        { "label": "Larger samples / fewer insertions", "next": "BIOPSY_VAB_RESULTS" },
+        { "label": "Cost sensitivity", "next": "BIOPSY_VAB_RESULTS" },
+        { "label": "Show me all VAB options", "next": "BIOPSY_VAB_RESULTS" }
+      ]
+    },
+    "BIOPSY_NEED_CORE": {
+      "message": "For core biopsy, what matters most?",
+      "options": [
+        { "label": "Precision & control", "next": "BIOPSY_CORE_RESULTS" },
+        { "label": "Fast setup", "next": "BIOPSY_CORE_RESULTS" },
+        { "label": "Cost sensitivity", "next": "BIOPSY_CORE_RESULTS" },
+        { "label": "Show all core options", "next": "BIOPSY_CORE_RESULTS" }
+      ]
+    },
+
+    "BIOPSY_COMPARE_PREFS": {
+      "message": "Let’s compare by what matters most. Pick a factor to view comparisons:",
+      "options": [
+        { "label": "Sample volume", "next": "BIOPSY_COMPARE_RESULTS" },
+        { "label": "Number of insertions", "next": "BIOPSY_COMPARE_RESULTS" },
+        { "label": "Procedure time", "next": "BIOPSY_COMPARE_RESULTS" },
+        { "label": "Portability", "next": "BIOPSY_COMPARE_RESULTS" },
+        { "label": "Cost considerations", "next": "BIOPSY_COMPARE_RESULTS" },
+        { "label": "Imaging compatibility", "next": "BIOPSY_COMPARE_RESULTS" }
+      ]
+    },
+    "BIOPSY_COMPARE_RESULTS": {
+      "message": "Here’s a quick VAB vs. Core comparison based on your selection. Explore details below.",
+      "options": [
+        { "label": "View Vacuum-Assisted Options", "next": "BIOPSY_VAB_RESULTS" },
+        { "label": "View Core Biopsy Options", "next": "BIOPSY_CORE_RESULTS" },
+        { "label": "Download Comparison PDF", "link": "/resources/biopsy-comparison.pdf" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" }
+      ]
+    },
+
+    "BIOPSY_VAB_RESULTS": {
+      "message": "Vacuum-assisted options that align with your context:",
+      "options": [
+        { "label": "VAB Option A – Open Product Page", "link": "/products/vab-option-a" },
+        { "label": "VAB Option B – Open Product Page", "link": "/products/vab-option-b" },
+        { "label": "VAB Option C – Open Product Page", "link": "/products/vab-option-c" },
+        { "label": "Compare All VAB", "link": "/compare?category=vab" },
+        { "label": "Clinical Evidence", "link": "/evidence/vab" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+    "BIOPSY_CORE_RESULTS": {
+      "message": "Core biopsy options that align with your context:",
+      "options": [
+        { "label": "Core Option A – Open Product Page", "link": "/products/core-option-a" },
+        { "label": "Core Option B – Open Product Page", "link": "/products/core-option-b" },
+        { "label": "Compare All Core", "link": "/compare?category=core" },
+        { "label": "Clinical Evidence", "link": "/evidence/core" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+
+    "LOCALIZATION_INTRO": {
+      "message": "Let’s narrow in on breast lesion localization. Which best describes your approach or need?",
+      "options": [
+        { "label": "Wire-Free", "next": "LOC_WIREFREE_PREFS" },
+        { "label": "Wire-Guided", "next": "LOC_WIRE_PREFS" },
+        { "label": "Not sure—help me choose", "next": "LOC_GUIDE_START" }
+      ]
+    },
+    "LOC_GUIDE_START": {
+      "message": "Quick context to guide you:",
+      "options": [
+        { "label": "Decouple scheduling (place marker days before surgery)", "next": "LOC_WIREFREE_PREFS" },
+        { "label": "Same-day placement & surgery is fine", "next": "LOC_WIRE_PREFS" },
+        { "label": "MRI compatibility required", "next": "LOC_WIREFREE_PREFS" },
+        { "label": "Focus on lowest device cost", "next": "LOC_WIRE_RESULTS" },
+        { "label": "Prioritize patient comfort & workflow", "next": "LOC_WIREFREE_PREFS" }
+      ]
+    },
+    "LOC_WIREFREE_PREFS": {
+      "message": "For wire-free localization, which constraint applies?",
+      "options": [
+        { "label": "MRI-compatible solution", "next": "LOC_WIREFREE_RESULTS" },
+        { "label": "OR efficiency & scheduling", "next": "LOC_WIREFREE_RESULTS" },
+        { "label": "Smaller footprint / easy adoption", "next": "LOC_WIREFREE_RESULTS" },
+        { "label": "Show all wire-free options", "next": "LOC_WIREFREE_RESULTS" }
+      ]
+    },
+    "LOC_WIREFREE_RESULTS": {
+      "message": "Wire-free options that align with your context:",
+      "options": [
+        { "label": "Wire-Free Option A – Product Page", "link": "/products/wirefree-option-a" },
+        { "label": "Wire-Free Option B – Product Page", "link": "/products/wirefree-option-b" },
+        { "label": "Compare Wire-Free", "link": "/compare?category=wirefree" },
+        { "label": "Clinical Outcomes & Workflow Data", "link": "/evidence/wirefree" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+    "LOC_WIRE_PREFS": {
+      "message": "For wire-guided localization, which is most important?",
+      "options": [
+        { "label": "Cost considerations", "next": "LOC_WIRE_RESULTS" },
+        { "label": "Familiar workflows", "next": "LOC_WIRE_RESULTS" },
+        { "label": "Availability / supply", "next": "LOC_WIRE_RESULTS" },
+        { "label": "Show all wire-guided", "next": "LOC_WIRE_RESULTS" }
+      ]
+    },
+    "LOC_WIRE_RESULTS": {
+      "message": "Wire-guided options suited to your context:",
+      "options": [
+        { "label": "Wire Option A – Product Page", "link": "/products/wire-option-a" },
+        { "label": "Wire Option B – Product Page", "link": "/products/wire-option-b" },
+        { "label": "Compare Wire-Guided", "link": "/compare?category=wire" },
+        { "label": "Clinical Outcomes", "link": "/evidence/wire" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+
+    "SPECIMEN_INTRO": {
+      "message": "For specimen handling, what are you optimizing?",
+      "options": [
+        { "label": "Intraoperative specimen imaging (radiography)", "next": "SPEC_RAD_PREFS" },
+        { "label": "Tissue markers / clip visibility", "next": "SPEC_MARKER_PREFS" },
+        { "label": "Both (start with imaging)", "next": "SPEC_RAD_PREFS" }
+      ]
+    },
+    "SPEC_RAD_PREFS": {
+      "message": "Specimen radiography—what matters most?",
+      "options": [
+        { "label": "Fast confirmation of target/margins", "next": "SPEC_RAD_RESULTS" },
+        { "label": "Image quality & ease of interpretation", "next": "SPEC_RAD_RESULTS" },
+        { "label": "Footprint / portability", "next": "SPEC_RAD_RESULTS" },
+        { "label": "Show all imaging options", "next": "SPEC_RAD_RESULTS" },
+        { "label": "Continue to tissue markers", "next": "SPEC_MARKER_PREFS" }
+      ]
+    },
+    "SPEC_RAD_RESULTS": {
+      "message": "Specimen radiography solutions that match your needs:",
+      "options": [
+        { "label": "Radiography Option A – Product Page", "link": "/products/radiography-option-a" },
+        { "label": "Radiography Option B – Product Page", "link": "/products/radiography-option-b" },
+        { "label": "Workflow Integration Case Study", "link": "/resources/case-study-specimen-imaging" },
+        { "label": "Clinical Evidence", "link": "/evidence/specimen-imaging" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+    "SPEC_MARKER_PREFS": {
+      "message": "For tissue markers, which visibility attributes are required?",
+      "options": [
+        { "label": "X-ray visibility", "next": "SPEC_MARKER_RESULTS" },
+        { "label": "Ultrasound visibility", "next": "SPEC_MARKER_RESULTS" },
+        { "label": "MRI compatibility", "next": "SPEC_MARKER_RESULTS" },
+        { "label": "Bioabsorbable preference", "next": "SPEC_MARKER_RESULTS" },
+        { "label": "Show all markers", "next": "SPEC_MARKER_RESULTS" }
+      ]
+    },
+    "SPEC_MARKER_RESULTS": {
+      "message": "Tissue marker options aligned to your preferences:",
+      "options": [
+        { "label": "Marker Option A (US + X-ray) – Product Page", "link": "/products/marker-option-a" },
+        { "label": "Marker Option B (MRI-compatible) – Product Page", "link": "/products/marker-option-b" },
+        { "label": "Marker Option C (Bioabsorbable) – Product Page", "link": "/products/marker-option-c" },
+        { "label": "Compare Markers", "link": "/compare?category=markers" },
+        { "label": "Radiology/Pathology Integration Tips", "link": "/resources/marker-integration" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+
+    "EDU_INTRO": {
+      "message": "What kind of education are you looking for?",
+      "options": [
+        { "label": "Quick Start for New Users", "next": "EDU_NEW" },
+        { "label": "Advanced Tips & Case Studies", "next": "EDU_ADV" },
+        { "label": "CME / Accredited Learning", "next": "EDU_CME" }
+      ]
+    },
+    "EDU_NEW": {
+      "message": "Great—here are Quick Start paths:",
+      "options": [
+        { "label": "Biopsy Basics", "link": "/education/biopsy-basics" },
+        { "label": "Localization Basics", "link": "/education/localization-basics" },
+        { "label": "Specimen Handling Basics", "link": "/education/specimen-basics" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+    "EDU_ADV": {
+      "message": "Here are advanced resources:",
+      "options": [
+        { "label": "Procedure Optimization Guides", "link": "/education/advanced-optimization" },
+        { "label": "On-Demand Webinars", "link": "/education/webinars" },
+        { "label": "Case Studies & Outcomes", "link": "/education/case-studies" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+    "EDU_CME": {
+      "message": "Browse CME opportunities by topic:",
+      "options": [
+        { "label": "Biopsy", "link": "/education/cme?topic=biopsy" },
+        { "label": "Localization", "link": "/education/cme?topic=localization" },
+        { "label": "Specimen Handling", "link": "/education/cme?topic=specimen" },
+        { "label": "Talk to a Clinical Specialist", "next": "REP_REQUEST" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+
+    "REP_REQUEST": {
+      "message": "I can connect you with a clinical specialist. Please share work contact details only (no patient info).",
+      "fields": ["Name", "Organization", "Role", "Work Email", "Work Phone (optional)", "Topic of interest", "Preferred contact time"],
+      "options": [
+        { "label": "Submit", "next": "REP_CONFIRM" },
+        { "label": "Back to Start", "next": "WELCOME" }
+      ]
+    },
+    "REP_CONFIRM": {
+      "message": "Thanks! A clinical specialist will reach out via your work contact. You can keep exploring resources below.",
+      "options": [
+        { "label": "Continue Exploring", "next": "WELCOME" },
+        { "label": "Download Brochures", "link": "/resources/brochures" },
+        { "label": "Close Chat", "next": "END" }
+      ]
+    },
+    "PHI_GUARD": {
+      "message": "To protect privacy, please don’t include patient identifiers or case details. Let’s keep it general. Which category can I help with?",
+      "options": [
+        { "label": "Find a Biopsy System", "next": "BIOPSY_INTRO" },
+        { "label": "Choose a Localization Method", "next": "LOCALIZATION_INTRO" },
+        { "label": "Optimize Specimen Handling", "next": "SPECIMEN_INTRO" },
+        { "label": "Training & Education", "next": "EDU_INTRO" }
+      ]
+    },
+    "END": {
+      "message": "Thank you for exploring Mammotome solutions today."
+    }
+  },
+  "start": "WELCOME"
+}

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mammotome HCP Chatbot (Brand Skinned)</title>
+<style>
+  /* -----------------------------
+     Mammotome Brand Tokens (EDIT)
+     -----------------------------
+     Swap these with exact brand codes.
+     Suggested defaults:
+     - Primary (Magenta):   #D5006D
+     - Navy (Primary Dark): #10223A
+     - Teal (Accent):       #00B3AD
+     - Neutral Slate:       #1E293B
+     - Off-White:           #F7F8FA
+     ----------------------------- */
+  :root{
+    /* Core brand */
+    --brand-primary: #D5006D;     /* Magenta */
+    --brand-primary-ink: #2b0d1f; /* Contrast ink for gradients (derived) */
+    --brand-dark:    #10223A;     /* Midnight navy */
+    --brand-accent:  #00B3AD;     /* Teal accent */
+    --brand-accent-2:#6FE7E0;     /* Soft teal for gradients/hovers */
+
+    /* Neutrals */
+    --neutral-900:   #0B1220;     /* App bg base (dark) */
+    --neutral-800:   #142035;     /* Panel */
+    --neutral-700:   #1E2B43;     /* Bubble bg */
+    --neutral-200:   #E9ECF2;     /* Light text */
+    --neutral-400:   #A9B3C6;     /* Muted */
+    --neutral-50:    #F7F8FA;     /* Light surface */
+
+    /* State / utility */
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger:  #EF4444;
+
+    /* Shadows/alpha */
+    --alpha-06: rgba(255,255,255,.06);
+    --alpha-12: rgba(255,255,255,.12);
+    --alpha-18: rgba(255,255,255,.18);
+
+    /* Typography */
+    --font: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  }
+
+  /* -----------------------------
+     Theme: Dark (default)
+     ----------------------------- */
+  body{
+    margin:0; font:16px/1.5 var(--font); color:var(--neutral-200);
+    min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:20px;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(213,0,109,.18), transparent 60%),
+      radial-gradient(1200px 600px at 110% 110%, rgba(0,179,173,.15), transparent 60%),
+      linear-gradient(120deg, #0A111E, var(--neutral-900));
+  }
+
+  .app{
+    width:clamp(320px, 92vw, 980px); height:82dvh; display:grid; grid-template-rows:auto 1fr auto;
+    background:rgba(20,32,53,.88); border:1px solid var(--alpha-06); border-radius:20px; overflow:hidden;
+    backdrop-filter: blur(8px); box-shadow:0 10px 40px rgba(0,0,0,.45);
+  }
+
+  header{
+    padding:14px 18px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--alpha-06);
+    background:linear-gradient(180deg, rgba(213,0,109,.18), transparent);
+  }
+  header .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--brand-accent);
+    box-shadow:0 0 12px var(--brand-accent);
+  }
+  header h1{font-size:16px; margin:0; letter-spacing:.2px}
+  header .sub{color:var(--neutral-400); font-size:13px}
+
+  #chat{
+    overflow:auto; padding:20px; display:flex; flex-direction:column; gap:12px; scroll-behavior:smooth;
+  }
+
+  .msg{
+    max-width:80%; padding:12px 14px; border-radius:14px; background:var(--neutral-700);
+    border:1px solid var(--alpha-06);
+  }
+  .bot{ align-self:flex-start; border-top-left-radius:6px }
+  .user{
+    align-self:flex-end;
+    background:
+      linear-gradient(135deg, rgba(213,0,109,.40), rgba(0,179,173,.30));
+    border-top-right-radius:6px; color:#fff; border:1px solid var(--alpha-12);
+  }
+  .msg .title{font-weight:700; margin-bottom:6px; color:#fff; letter-spacing:.2px}
+  .msg small{display:block; color:var(--neutral-400); margin-top:6px}
+
+  .options{
+    display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;
+  }
+  .options button{
+    appearance:none; border:none; padding:10px 12px; border-radius:12px; color:#0b1220;
+    font-weight:700; cursor:pointer; transition:transform .04s ease, box-shadow .15s, filter .15s;
+    background:
+      linear-gradient(135deg, color-mix(in oklab, var(--brand-primary) 80%, #fff 20%), color-mix(in oklab, var(--brand-accent) 70%, #fff 30%));
+    box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 6px 16px rgba(0,0,0,.25);
+    color:#071019;
+  }
+  .options button.secondary{
+    background:
+      linear-gradient(135deg, color-mix(in oklab, var(--brand-accent) 75%, #fff 25%), var(--brand-accent-2));
+    color:#031517;
+  }
+  .options button.link{
+    background:linear-gradient(135deg, #FFE9F4, #FDF2FA);
+    color:#52002A;
+    border:1px solid rgba(213,0,109,.25);
+  }
+  .options button:hover{ transform: translateY(-1px); filter:brightness(1.05) }
+
+  .footer{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-top:1px solid var(--alpha-06);
+    background:linear-gradient(180deg, transparent, rgba(255,255,255,.02));
+  }
+  .footer .left{display:flex; gap:8px; align-items:center; color:var(--neutral-400); font-size:12px}
+  .footer .actions{display:flex; gap:10px}
+  .footer button{
+    border:1px solid var(--alpha-12); background:transparent; color:var(--neutral-200); padding:8px 12px; border-radius:10px; cursor:pointer;
+  }
+  .footer button.primary{
+    background:var(--brand-accent);
+    color:#041018; border:none; font-weight:800;
+  }
+  .footer button:hover{ border-color:var(--alpha-18) }
+
+  .hidden{display:none !important}
+
+  /* Form card (Rep Request) */
+  .form-card{
+    margin-top:10px; display:grid; gap:10px; background:rgba(255,255,255,.02);
+    border:1px dashed var(--alpha-12); padding:14px; border-radius:12px;
+  }
+  .form-card label{font-size:13px; color:var(--neutral-400)}
+  .form-card input, .form-card select{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--alpha-12);
+    background:#0b1322; color:var(--neutral-200);
+    outline:2px solid transparent; outline-offset:2px;
+  }
+  .form-card input:focus, .form-card select:focus{
+    border-color: color-mix(in oklab, var(--brand-primary) 40%, white 60%);
+    outline-color: color-mix(in oklab, var(--brand-primary) 40%, white 60%);
+  }
+  .inline{display:flex; gap:10px; flex-wrap:wrap}
+  .inline > div{ flex:1 1 220px }
+  .warning{ color:var(--danger); font-size:13px; margin-top:6px }
+  .dropzone{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:12px;
+    border:1px dashed var(--alpha-12); border-radius:10px; color:var(--neutral-400); font-size:13px;
+  }
+  .pill{ display:inline-flex; gap:8px; align-items:center; padding:4px 8px; border-radius:999px;
+    background:color-mix(in oklab, var(--brand-accent) 25%, transparent);
+    color:#a5f3fc; font-size:12px }
+
+  /* -----------------------------
+     Optional Light Theme
+     Add class="theme-light" on body to test
+     ----------------------------- */
+  body.theme-light{
+    background:var(--neutral-50);
+    color:#101828;
+  }
+  body.theme-light .app{
+    background:#fff; border-color:#E5E7EB; box-shadow: 0 8px 40px rgba(16,34,58,.12);
+  }
+  body.theme-light header{ background:linear-gradient(180deg, rgba(213,0,109,.10), transparent); border-bottom-color:#E5E7EB }
+  body.theme-light #chat .msg{ background:#F6F7FA; border-color:#EAECEF; color:#111827 }
+  body.theme-light .user{ background:linear-gradient(135deg, #FFD2E6, #C8FBF7); color:#0B1220; border-color:#F0F2F5 }
+  body.theme-light .footer{ border-top-color:#EAECEF }
+  body.theme-light .form-card{ background:#FAFBFC; border-color:#EAECEF }
+  body.theme-light .form-card input, body.theme-light .form-card select{
+    background:#fff; color:#101828; border-color:#E2E8F0;
+  }
+</style>
+</head>
+<body>
+<div class="app" role="application" aria-label="Mammotome HCP Chatbot">
+  <header>
+    <div class="dot" aria-hidden="true"></div>
+    <div>
+      <h1>Mammotome HCP Chat</h1>
+      <div class="sub">Needs-based guidance • No PHI</div>
+    </div>
+  </header>
+
+  <main id="chat" aria-live="polite" aria-atomic="false"></main>
+
+  <div class="footer">
+    <div class="left">
+      <span class="pill">JSON: <span id="flowStatus">loading…</span></span>
+      <span id="jsonLoader" class="hidden">
+        <span>Load flow:</span>
+        <input type="file" id="file" accept=".json" />
+      </span>
+    </div>
+    <div class="actions">
+      <button id="restart">Restart</button>
+      <button id="back">Back</button>
+      <button id="scroll" class="primary">Scroll to Latest</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/** ----- Small state manager ----- */
+const chat = document.getElementById('chat');
+const flowStatus = document.getElementById('flowStatus');
+const backBtn = document.getElementById('back');
+const restartBtn = document.getElementById('restart');
+const scrollBtn = document.getElementById('scroll');
+const fileInput = document.getElementById('file');
+const jsonLoader = document.getElementById('jsonLoader');
+
+let FLOW = null;
+let historyStack = [];
+let currentNode = null;
+
+// Looks for your uploaded JSON in same folder:
+const DEFAULT_FLOW_URL = './mammotome_chatbot_flow_json.json';
+
+/** Utilities */
+function el(tag, className, content){
+  const e = document.createElement(tag);
+  if(className) e.className = className;
+  if(content !== undefined) e.innerHTML = content;
+  return e;
+}
+function scrollToBottom(){ chat.scrollTop = chat.scrollHeight; }
+
+/** Chat rendering */
+function addBotMessage(html){
+  const bubble = el('div','msg bot');
+  bubble.innerHTML = html;
+  chat.appendChild(bubble);
+  scrollToBottom();
+}
+function addUserMessage(text){
+  const bubble = el('div','msg user');
+  bubble.textContent = text;
+  chat.appendChild(bubble);
+  scrollToBottom();
+}
+
+/** Node rendering */
+function renderNode(nodeId){
+  const node = FLOW.nodes[nodeId];
+  if(!node){ console.warn('Missing node', nodeId); return; }
+  currentNode = nodeId;
+
+  if(historyStack[historyStack.length-1] !== nodeId){
+    historyStack.push(nodeId);
+  }
+
+  let html = `<div class="title">Assistant</div>${node.message ? node.message : ''}`;
+  if(Array.isArray(node.fields) && node.fields.length){
+    html += renderForm(node);
+  }
+  if(Array.isArray(node.options) && node.options.length){
+    html += renderOptions(node.options);
+  }
+  addBotMessage(html);
+}
+
+function renderOptions(options){
+  const id = 'opt-' + Math.random().toString(36).slice(2,8);
+  let html = `<div class="options" id="${id}">`;
+  for(const opt of options){
+    const cls = opt.link ? 'link' : (opt.next === 'WELCOME' ? 'secondary' : '');
+    const label = opt.label ? opt.label : (opt.link ? 'Open Link' : 'Next');
+    html += `<button class="${cls}" data-next="${opt.next||''}" data-link="${opt.link||''}">${label}</button>`;
+  }
+  html += `</div>`;
+  setTimeout(()=>{
+    const wrap = document.getElementById(id);
+    wrap.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const link = btn.dataset.link;
+        const next = btn.dataset.next;
+        addUserMessage(btn.textContent.trim());
+        if(link) window.open(link, '_blank');
+        if(next) renderNode(next);
+      });
+    });
+  },0);
+  return html;
+}
+
+function renderForm(node){
+  const formId = 'form-' + Math.random().toString(36).slice(2,8);
+  let html = `<form id="${formId}" class="form-card" novalidate>`;
+  const fields = node.fields;
+  const pairs = [];
+
+  fields.forEach((f)=>{
+    const key = f.toLowerCase();
+    let input = '';
+    if(key.includes('email')){
+      input = `<input type="email" name="${f}" placeholder="${f}" autocomplete="email">`;
+    } else if(key.includes('role')){
+      input = `<select name="${f}">
+                 <option value="">Select Role…</option>
+                 <option>Surgeon</option><option>Radiologist</option>
+                 <option>Breast Imager</option><option>Pathologist</option>
+                 <option>Nurse/NP/PA</option><option>Admin</option><option>Other</option>
+               </select>`;
+    } else if(key.includes('topic')){
+      input = `<select name="${f}">
+                 <option value="">Select Topic…</option>
+                 <option>Biopsy</option><option>Localization</option>
+                 <option>Specimen Handling</option><option>Training</option>
+               </select>`;
+    } else if(key.includes('time')){
+      input = `<select name="${f}">
+                 <option value="">Preferred time…</option>
+                 <option>Morning</option><option>Afternoon</option><option>Evening</option>
+               </select>`;
+    } else if(key.includes('phone')){
+      input = `<input type="tel" name="${f}" placeholder="${f}" autocomplete="tel">`;
+    } else {
+      input = `<input type="text" name="${f}" placeholder="${f}">`;
+    }
+    pairs.push(`<div><label>${f}</label>${input}</div>`);
+  });
+
+  html += `<div class="inline">${pairs.join('')}</div>`;
+
+  const submitOpt = (node.options||[]).find(o=>/submit/i.test(o.label));
+  const backOpt = (node.options||[]).find(o=>/back/i.test(o.label));
+
+  html += `<div class="options">`;
+  if(backOpt){
+    html += `<button type="button" class="secondary" data-next="${backOpt.next}">${backOpt.label}</button>`;
+  }
+  if(submitOpt){
+    html += `<button type="submit">${submitOpt.label}</button>`;
+  }
+  html += `</div>`;
+
+  html += `<small class="warning">Please share <strong>work contact details only</strong>. Do not include patient identifiers (no PHI).</small>`;
+  html += `</form>`;
+
+  setTimeout(()=>{
+    const form = document.getElementById(formId);
+    form.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[type="button"]');
+      if(!btn) return;
+      const next = btn.dataset.next;
+      if(next){
+        addUserMessage(btn.textContent.trim());
+        renderNode(next);
+      }
+    });
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      const emailKey = Object.keys(data).find(k=>/email/i.test(k));
+      if(emailKey && data[emailKey] && !/.+@.+\..+/.test(data[emailKey])){
+        alert('Please provide a valid work email.');
+        return;
+      }
+      addUserMessage('Submit');
+      addBotMessage(`<small>Thanks! Your details were received (locally in this demo).</small>`);
+      if(submitOpt && submitOpt.next){
+        renderNode(submitOpt.next);
+      }
+    });
+  },0);
+
+  return html;
+}
+
+/** Navigation */
+document.getElementById('back').addEventListener('click', ()=>{
+  historyStack.pop();
+  const prev = historyStack.pop();
+  if(prev){ renderNode(prev); }
+});
+document.getElementById('restart').addEventListener('click', ()=>{
+  historyStack.length = 0;
+  chat.innerHTML = '';
+  if(FLOW) renderNode(FLOW.start);
+});
+document.getElementById('scroll').addEventListener('click', ()=> chat.scrollTop = chat.scrollHeight);
+
+/** Loading JSON */
+async function tryLoadDefault(){
+  try{
+    const res = await fetch(DEFAULT_FLOW_URL, {cache:'no-store'});
+    if(!res.ok) throw new Error('not ok');
+    const json = await res.json();
+    FLOW = json;
+    flowStatus.textContent = 'loaded (auto)';
+    jsonLoader.classList.add('hidden');
+    chat.innerHTML = '';
+    renderNode(FLOW.start || 'WELCOME');
+  }catch(err){
+    flowStatus.textContent = 'not found';
+    jsonLoader.classList.remove('hidden');
+    addBotMessage(`
+      <div class="title">Assistant</div>
+      I couldn’t auto-load <code>${DEFAULT_FLOW_URL}</code>.
+      <div class="dropzone" id="drop">
+        <div>Drag & drop your <strong>mammotome_chatbot_flow_json.json</strong> here</div>
+        <div>or use the file picker below.</div>
+      </div>
+    `);
+  }
+}
+document.getElementById('file').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const text = await file.text();
+  FLOW = JSON.parse(text);
+  flowStatus.textContent = 'loaded (manual)';
+  chat.innerHTML = '';
+  renderNode(FLOW.start || 'WELCOME');
+});
+document.addEventListener('dragover', (e)=>{ e.preventDefault(); });
+document.addEventListener('drop', async (e)=>{
+  const dz = document.getElementById('drop');
+  if(!dz) return;
+  e.preventDefault();
+  const f = e.dataTransfer.files?.[0];
+  if(!f) return;
+  const text = await f.text();
+  FLOW = JSON.parse(text);
+  flowStatus.textContent = 'loaded (manual)';
+  chat.innerHTML = '';
+  renderNode(FLOW.start || 'WELCOME');
+});
+
+tryLoadDefault();
+</script>
+</body>
+</html>
