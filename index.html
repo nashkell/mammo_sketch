@@ -1,91 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Mammotome HCP Chatbot (With Simple Login)</title>
+<title>Mammotome HCP Chatbot (Light/Dark + Login)</title>
 <style>
-  /* --- Minimal brand + layout (use your existing CSS if you like) --- */
+  /* ========= Brand Tokens (shared) ========= */
   :root{
-    --brand-primary:#D5006D; --brand-accent:#00B3AD;
-    --bg:#0b1220; --panel:#142035; --muted:#A9B3C6; --text:#E9ECF2;
-    --bubble:#1E2B43; --alpha-06:rgba(255,255,255,.06); --alpha-12:rgba(255,255,255,.12);
+    --brand-primary:#D5006D;     /* magenta */
+    --brand-accent:#00B3AD;      /* teal */
+
+    --success:#22C55E; --warning:#F59E0B; --danger:#EF4444;
+
+    --radius-card:20px; --radius-bubble:14px; --radius-field:10px;
+    --shadow-lg:0 10px 40px rgba(0,0,0,.45);
+    --font:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   }
+
+  /* ========= Theme: DARK ========= */
+  body[data-theme="dark"]{
+    --bg:#F7F8FA;
+    --bg-panel:#FFFFFF;
+    --bg-bubble:#F3F5F9;
+    --text:#101828;
+    --muted:#667085;
+    --hairline:#E5E7EB;
+    --hairline-2:#EEF0F4;
+    --focus:#D5006D;
+    --bubble-user-grad1:#FFD2E6;
+    --bubble-user-grad2:#C8FBF7;
+    --header-grad:rgba(213,0,109,.10);
+    --link-chip-bg:#FDF2FA;
+    --link-chip-fg:#7A003A;
+  }
+
+  /* ========= Theme: LIGHT ========= */
+  body[data-theme="light"]{
+    --bg:#0b1220;
+    --bg-panel:#142035;
+    --bg-bubble:#1E2B43;
+    --text:#E9ECF2;
+    --muted:#A9B3C6;
+    --hairline:rgba(255,255,255,.10);
+    --hairline-2:rgba(255,255,255,.06);
+    --focus: #ff74bf;           /* focus ring tint */
+    --bubble-user-grad1:rgba(213,0,109,.40);
+    --bubble-user-grad2:rgba(0,179,173,.30);
+    --header-grad:rgba(213,0,109,.18);
+    --link-chip-bg:#FFE9F4;
+    --link-chip-fg:#52002A;
+  }
+
+  /* ========= Layout / App ========= */
   *{box-sizing:border-box}
   body{
     margin:0; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:20px;
-    background: radial-gradient(900px 600px at 0% 0%, rgba(213,0,109,.18), transparent 60%),
-                radial-gradient(900px 600px at 100% 100%, rgba(0,179,173,.15), transparent 60%),
-                linear-gradient(120deg, #0A111E, var(--bg));
-    color:var(--text); font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    font:16px/1.5 var(--font);
+    background:
+      radial-gradient(900px 600px at 0% 0%, var(--header-grad), transparent 60%),
+      radial-gradient(900px 600px at 100% 100%, rgba(0,179,173,.12), transparent 60%),
+      linear-gradient(120deg, #0A111E, var(--bg));
+    color:var(--text);
   }
   .app{
-    width:clamp(320px,92vw,980px); height:82dvh; display:grid; grid-template-rows:auto 1fr auto;
-    background:rgba(20,32,53,.9); border:1px solid var(--alpha-06); border-radius:20px; overflow:hidden;
-    backdrop-filter: blur(8px); box-shadow:0 10px 40px rgba(0,0,0,.45);
+    width:clamp(320px, 92vw, 980px); height:82dvh; display:grid; grid-template-rows:auto 1fr auto;
+    background:color-mix(in oklab, var(--bg-panel) 92%, transparent);
+    border:1px solid var(--hairline-2); border-radius:var(--radius-card); overflow:hidden;
+    backdrop-filter: blur(8px); box-shadow:var(--shadow-lg);
   }
-  header{ padding:14px 18px; display:flex; gap:12px; align-items:center; border-bottom:1px solid var(--alpha-06);
-    background:linear-gradient(180deg, rgba(213,0,109,.18), transparent); }
+
+  header{
+    padding:14px 18px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--hairline-2);
+    background:linear-gradient(180deg, var(--header-grad), transparent);
+  }
   header .dot{ width:10px; height:10px; border-radius:50%; background:var(--brand-accent); box-shadow:0 0 12px var(--brand-accent) }
   header h1{ font-size:16px; margin:0 }
   header .sub{ color:var(--muted); font-size:13px }
+
   #chat{ overflow:auto; padding:20px; display:flex; flex-direction:column; gap:12px; scroll-behavior:smooth }
-  .msg{ max-width:80%; padding:12px 14px; border-radius:14px; background:var(--bubble); border:1px solid var(--alpha-06) }
+
+  .msg{
+    max-width:80%; padding:12px 14px; border-radius:var(--radius-bubble);
+    background:var(--bg-bubble); border:1px solid var(--hairline-2);
+  }
   .bot{ align-self:flex-start; border-top-left-radius:6px }
-  .user{ align-self:flex-end; border-top-right-radius:6px; background:linear-gradient(135deg, rgba(213,0,109,.4), rgba(0,179,173,.3)); border:1px solid var(--alpha-12) }
+  .user{
+    align-self:flex-end; border-top-right-radius:6px;
+    background:linear-gradient(135deg, var(--bubble-user-grad1), var(--bubble-user-grad2));
+    border:1px solid var(--hairline);
+  }
   .msg .title{ font-weight:700; margin-bottom:6px }
+  .msg small{ display:block; color:var(--muted); margin-top:6px }
+
   .options{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px }
-  .options button{ appearance:none; border:none; padding:10px 12px; border-radius:12px; font-weight:700; cursor:pointer;
-    background:linear-gradient(135deg, #ff8cc7, #8bf0e8); color:#05121a }
-  .options button.secondary{ background:linear-gradient(135deg, #b0ffe7, #7cf2c1) }
-  .options button.link{ background:linear-gradient(135deg, #FFE9F4, #FDF2FA); color:#52002A; border:1px solid rgba(213,0,109,.25) }
-  .footer{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-top:1px solid var(--alpha-06) }
-  .footer .left{ display:flex; gap:8px; align-items:center; color:var(--muted); font-size:12px }
-  .footer .actions{ display:flex; gap:10px }
-  .footer button{ border:1px solid var(--alpha-12); background:transparent; color:var(--text); padding:8px 12px; border-radius:10px; cursor:pointer }
+  .options button{
+    appearance:none; border:none; padding:10px 12px; border-radius:12px; font-weight:700; cursor:pointer;
+    background:linear-gradient(135deg, color-mix(in oklab, var(--brand-primary) 80%, #fff 20%), color-mix(in oklab, var(--brand-accent) 70%, #fff 30%));
+    color:#05121a; transition:transform .05s ease, filter .15s;
+  }
+  .options button.secondary{
+    background:linear-gradient(135deg, color-mix(in oklab, var(--brand-accent) 75%, #fff 25%), #6FE7E0);
+  }
+  .options button.link{
+    background:linear-gradient(135deg, var(--link-chip-bg), #ffffff);
+    color:var(--link-chip-fg);
+    border:1px solid color-mix(in oklab, var(--brand-primary) 40%, #fff 60%);
+  }
+  .options button:hover{ transform:translateY(-1px); filter:brightness(1.05) }
+
+  .footer{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-top:1px solid var(--hairline-2);
+  }
+  .footer .left{ display:flex; gap:8px; align-items:center; color:var(--muted); font-size:12px; flex-wrap:wrap }
+  .footer .actions{ display:flex; gap:10px; flex-wrap:wrap }
+  .footer button{
+    border:1px solid var(--hairline); background:transparent; color:var(--text); padding:8px 12px; border-radius:10px; cursor:pointer;
+  }
   .footer button.primary{ background:var(--brand-accent); color:#041018; border:none; font-weight:800 }
+  .toggle{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid var(--hairline);
+    background:color-mix(in oklab, var(--bg-panel) 95%, transparent);
+    font-size:13px; cursor:pointer;
+  }
+
   .hidden{ display:none !important }
 
-  /* --- Simple auth overlay --- */
+  /* ===== Auth Overlay ===== */
   .auth-overlay{
     position:fixed; inset:0; display:grid; place-items:center; background:rgba(0,0,0,.55); backdrop-filter: blur(6px); z-index:9999;
   }
   .auth-card{
-    width:min(420px, 92vw); background:#0f1a2c; color:var(--text); border:1px solid var(--alpha-12); border-radius:16px; padding:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,.55);
+    width:min(420px, 92vw); background:color-mix(in oklab, var(--bg-panel) 98%, #0f1a2c 2%); color:var(--text);
+    border:1px solid var(--hairline); border-radius:16px; padding:20px; box-shadow:0 20px 60px rgba(0,0,0,.55);
   }
   .auth-card h2{ margin:0 0 8px 0; font-size:18px }
   .auth-card p{ margin:0 0 16px 0; color:var(--muted); font-size:14px }
   .auth-field{ display:grid; gap:6px; margin-bottom:12px }
   .auth-field label{ font-size:13px; color:var(--muted) }
   .auth-field input{
-    width:100%; padding:10px 12px; border-radius:10px; background:#0b1322; border:1px solid var(--alpha-12); color:var(--text);
+    width:100%; padding:10px 12px; border-radius:var(--radius-field); background:color-mix(in oklab, var(--bg) 94%, #ffffff 6%);
+    border:1px solid var(--hairline); color:var(--text);
     outline:2px solid transparent; outline-offset:2px;
   }
+  .auth-field input:focus{ outline-color:var(--focus); border-color:var(--focus) }
   .auth-actions{ display:flex; gap:10px; align-items:center; justify-content:space-between; margin-top:8px }
-  .auth-actions button{
-    padding:10px 12px; border-radius:10px; border:1px solid var(--alpha-12); cursor:pointer; font-weight:700;
-  }
-  .auth-actions .primary-btn{
-    background:linear-gradient(135deg, #ff8cc7, #8bf0e8); color:#05121a; border:none;
-  }
-  .auth-error{ color:#ffb4c9; font-size:13px; min-height:18px }
+  .auth-actions button{ padding:10px 12px; border-radius:10px; border:1px solid var(--hairline); cursor:pointer; font-weight:700; color:var(--text) }
+  .auth-actions .primary-btn{ background:linear-gradient(135deg, #ff8cc7, #8bf0e8); color:#05121a; border:none }
+  .auth-error{ color:#ff6f9a; font-size:13px; min-height:18px }
   .auth-hint{ color:var(--muted); font-size:12px; margin-top:6px }
 </style>
 </head>
-<body>
-<!-- AUTH OVERLAY -->
+<body data-theme="dark">
+<!-- ===== Theme + Auth ===== -->
 <div class="auth-overlay" id="authOverlay" aria-modal="true" role="dialog" aria-labelledby="authTitle">
   <div class="auth-card">
     <h2 id="authTitle">Restricted Access</h2>
     <p>Please sign in to continue.</p>
     <div class="auth-field">
       <label for="authUser">Username</label>
-      <input id="authUser" name="username" autocomplete="username" placeholder="Enter username" />
+      <input id="authUser" placeholder="Enter username" autocomplete="username" />
     </div>
     <div class="auth-field">
       <label for="authPass">Password</label>
-      <input id="authPass" name="password" type="password" autocomplete="current-password" placeholder="Enter password" />
+      <input id="authPass" type="password" placeholder="Enter password" autocomplete="current-password" />
       <div class="auth-hint">Demo credentials only — do not use real passwords.</div>
     </div>
     <div class="auth-actions">
@@ -98,7 +175,7 @@
   </div>
 </div>
 
-<!-- CHAT APP -->
+<!-- ===== Chat App ===== -->
 <div class="app hidden" id="app" role="application" aria-label="Mammotome HCP Chatbot">
   <header>
     <div class="dot" aria-hidden="true"></div>
@@ -119,6 +196,7 @@
       </span>
     </div>
     <div class="actions">
+      <button id="themeToggle" class="toggle" title="Toggle light/dark" aria-pressed="false">🌙 Dark</button>
       <button id="restart">Restart</button>
       <button id="back">Back</button>
       <button id="scroll" class="primary">Scroll to Latest</button>
@@ -127,272 +205,176 @@
 </div>
 
 <script>
-/* ===========================
-   Simple client-side login
-   =========================== */
-const AUTH_USER = 'relevate';
-const AUTH_PASS = 'ilovetech!';
-const AUTH_KEY  = 'mammotome_demo_auth_ok';
+/* ===== Simple client-side login ===== */
+const AUTH_USER='relevate', AUTH_PASS='ilovetech!', AUTH_KEY='mammotome_demo_auth_ok';
+const overlay=document.getElementById('authOverlay'), app=document.getElementById('app');
+const userEl=document.getElementById('authUser'), passEl=document.getElementById('authPass');
+const errEl=document.getElementById('authError'), showBtn=document.getElementById('authShow'), submitBtn=document.getElementById('authSubmit');
 
-const overlay   = document.getElementById('authOverlay');
-const app       = document.getElementById('app');
-const userEl    = document.getElementById('authUser');
-const passEl    = document.getElementById('authPass');
-const errEl     = document.getElementById('authError');
-const showBtn   = document.getElementById('authShow');
-const submitBtn = document.getElementById('authSubmit');
-
-function revealApp(){
-  overlay.classList.add('hidden');
-  app.classList.remove('hidden');
-}
-
+function revealApp(){ overlay.classList.add('hidden'); app.classList.remove('hidden'); }
 function handleLogin(){
-  const u = (userEl.value || '').trim();
-  const p = passEl.value || '';
-  if(u === AUTH_USER && p === AUTH_PASS){
-    sessionStorage.setItem(AUTH_KEY, '1'); // keep it session-only
-    revealApp();
-  }else{
-    errEl.textContent = 'Invalid username or password.';
-  }
+  const u=(userEl.value||'').trim(), p=passEl.value||'';
+  if(u===AUTH_USER && p===AUTH_PASS){ sessionStorage.setItem(AUTH_KEY,'1'); revealApp(); initAfterReveal(); }
+  else{ errEl.textContent='Invalid username or password.'; }
 }
-
-showBtn.addEventListener('click', ()=>{
-  passEl.type = passEl.type === 'password' ? 'text' : 'password';
-  showBtn.textContent = passEl.type === 'password' ? 'Show' : 'Hide';
-});
+showBtn.addEventListener('click', ()=>{ passEl.type = passEl.type==='password' ? 'text' : 'password'; showBtn.textContent = passEl.type==='password' ? 'Show' : 'Hide'; });
 submitBtn.addEventListener('click', handleLogin);
-passEl.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') handleLogin(); });
-userEl.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') handleLogin(); });
+[userEl,passEl].forEach(el=> el.addEventListener('keydown',e=>{ if(e.key==='Enter') handleLogin(); }));
+if(sessionStorage.getItem(AUTH_KEY)==='1'){ revealApp(); }
 
-// Auto-reveal if already authenticated this tab
-if (sessionStorage.getItem(AUTH_KEY) === '1') revealApp();
-else userEl.focus();
+/* ===== Theme handling ===== */
+const THEME_KEY='mammotome_theme';
+const themeToggle=document.getElementById('themeToggle');
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.body.setAttribute('data-theme', theme);
+  const isDark = theme==='dark';
+  themeToggle.textContent = isDark ? '🌙 Dark' : '☀️ Light';
+  themeToggle.setAttribute('aria-pressed', String(!isDark));
+}
+function initTheme(){
+  const saved = localStorage.getItem(THEME_KEY);
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  applyTheme(theme);
+}
+themeToggle.addEventListener('click', ()=>{
+  const current = document.body.getAttribute('data-theme') || 'dark';
+  const next = current==='dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+});
 
-/* ===========================
-   Chatbot code (unchanged)
-   =========================== */
-const chat = document.getElementById('chat');
-const flowStatus = document.getElementById('flowStatus');
-const backBtn = document.getElementById('back');
-const restartBtn = document.getElementById('restart');
-const scrollBtn = document.getElementById('scroll');
-const fileInput = document.getElementById('file');
-const jsonLoader = document.getElementById('jsonLoader');
+/* ===== Chatbot core ===== */
+const chat=document.getElementById('chat');
+const flowStatus=document.getElementById('flowStatus');
+const backBtn=document.getElementById('back');
+const restartBtn=document.getElementById('restart');
+const scrollBtn=document.getElementById('scroll');
+const fileInput=document.getElementById('file');
+const jsonLoader=document.getElementById('jsonLoader');
 
-let FLOW = null;
-let historyStack = [];
-let currentNode = null;
-
-// Adjust path if your JSON is elsewhere (e.g., './data/mammotome_chatbot_flow_json.json')
-const DEFAULT_FLOW_URL = './mammotome_chatbot_flow_json.json';
+let FLOW=null, historyStack=[], currentNode=null;
+// Adjust if your JSON lives elsewhere:
+const DEFAULT_FLOW_URL='./mammotome_chatbot_flow_json.json';
 
 function addBotMessage(html){
-  const bubble = document.createElement('div');
-  bubble.className = 'msg bot';
-  bubble.innerHTML = html;
-  chat.appendChild(bubble);
-  chat.scrollTop = chat.scrollHeight;
+  const b=document.createElement('div'); b.className='msg bot'; b.innerHTML=html; chat.appendChild(b); chat.scrollTop=chat.scrollHeight;
 }
 function addUserMessage(text){
-  const bubble = document.createElement('div');
-  bubble.className = 'msg user';
-  bubble.textContent = text;
-  chat.appendChild(bubble);
-  chat.scrollTop = chat.scrollHeight;
+  const b=document.createElement('div'); b.className='msg user'; b.textContent=text; chat.appendChild(b); chat.scrollTop=chat.scrollHeight;
 }
-
 function renderOptions(options){
-  const id = 'opt-' + Math.random().toString(36).slice(2,8);
-  let html = `<div class="options" id="${id}">`;
+  const id='opt-'+Math.random().toString(36).slice(2,8);
+  let html=`<div class="options" id="${id}">`;
   for(const opt of options){
-    const cls = opt.link ? 'link' : (opt.next === 'WELCOME' ? 'secondary' : '');
-    const label = opt.label ? opt.label : (opt.link ? 'Open Link' : 'Next');
+    const cls = opt.link ? 'link' : (opt.next==='WELCOME' ? 'secondary' : '');
+    const label = opt.label || (opt.link ? 'Open Link' : 'Next');
     html += `<button class="${cls}" data-next="${opt.next||''}" data-link="${opt.link||''}">${label}</button>`;
   }
   html += `</div>`;
   setTimeout(()=>{
-    const wrap = document.getElementById(id);
+    const wrap=document.getElementById(id);
     wrap.querySelectorAll('button').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        const link = btn.dataset.link;
-        const next = btn.dataset.next;
+        const link=btn.dataset.link, next=btn.dataset.next;
         addUserMessage(btn.textContent.trim());
-        if(link){ window.open(link, '_blank'); }
-        if(next){ renderNode(next); }
+        if(link) window.open(link,'_blank');
+        if(next) renderNode(next);
       });
     });
   },0);
   return html;
 }
-
 function renderForm(node){
-  const formId = 'form-' + Math.random().toString(36).slice(2,8);
-  let html = `<form id="${formId}" class="form-card" novalidate>`;
-  const fields = node.fields || [];
-  const pairs = [];
-
+  const formId='form-'+Math.random().toString(36).slice(2,8);
+  let html=`<form id="${formId}" class="form-card" novalidate>`;
+  const fields=node.fields||[], pairs=[];
   fields.forEach((f)=>{
-    const key = f.toLowerCase();
-    let input = '';
-    if(key.includes('email')){
-      input = `<input type="email" name="${f}" placeholder="${f}" autocomplete="email">`;
-    } else if(key.includes('role')){
-      input = `<select name="${f}">
-                 <option value="">Select Role…</option>
-                 <option>Surgeon</option><option>Radiologist</option>
-                 <option>Breast Imager</option><option>Pathologist</option>
-                 <option>Nurse/NP/PA</option><option>Admin</option><option>Other</option>
-               </select>`;
-    } else if(key.includes('topic')){
-      input = `<select name="${f}">
-                 <option value="">Select Topic…</option>
-                 <option>Biopsy</option><option>Localization</option>
-                 <option>Specimen Handling</option><option>Training</option>
-               </select>`;
-    } else if(key.includes('time')){
-      input = `<select name="${f}">
-                 <option value="">Preferred time…</option>
-                 <option>Morning</option><option>Afternoon</option><option>Evening</option>
-               </select>`;
-    } else if(key.includes('phone')){
-      input = `<input type="tel" name="${f}" placeholder="${f}" autocomplete="tel">`;
-    } else {
-      input = `<input type="text" name="${f}" placeholder="${f}">`;
-    }
+    const key=f.toLowerCase(); let input='';
+    if(key.includes('email')) input=`<input type="email" name="${f}" placeholder="${f}" autocomplete="email">`;
+    else if(key.includes('role')) input=`<select name="${f}">
+      <option value="">Select Role…</option><option>Surgeon</option><option>Radiologist</option>
+      <option>Breast Imager</option><option>Pathologist</option><option>Nurse/NP/PA</option>
+      <option>Admin</option><option>Other</option></select>`;
+    else if(key.includes('topic')) input=`<select name="${f}">
+      <option value="">Select Topic…</option><option>Biopsy</option><option>Localization</option>
+      <option>Specimen Handling</option><option>Training</option></select>`;
+    else if(key.includes('time')) input=`<select name="${f}">
+      <option value="">Preferred time…</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select>`;
+    else if(key.includes('phone')) input=`<input type="tel" name="${f}" placeholder="${f}" autocomplete="tel">`;
+    else input=`<input type="text" name="${f}" placeholder="${f}">`;
     pairs.push(`<div><label>${f}</label>${input}</div>`);
   });
-
   html += `<div class="inline" style="display:flex;gap:10px;flex-wrap:wrap">${pairs.join('')}</div>`;
-
-  const submitOpt = (node.options||[]).find(o=>/submit/i.test(o.label));
-  const backOpt = (node.options||[]).find(o=>/back/i.test(o.label));
-
+  const submitOpt=(node.options||[]).find(o=>/submit/i.test(o.label));
+  const backOpt=(node.options||[]).find(o=>/back/i.test(o.label));
   html += `<div class="options">`;
-  if(backOpt){
-    html += `<button type="button" class="secondary" data-next="${backOpt.next}">${backOpt.label}</button>`;
-  }
-  if(submitOpt){
-    html += `<button type="submit">${submitOpt.label}</button>`;
-  }
-  html += `</div>`;
-
-  html += `<small class="warning">Please share <strong>work contact details only</strong>. Do not include patient identifiers (no PHI).</small>`;
-  html += `</form>`;
-
+  if(backOpt) html += `<button type="button" class="secondary" data-next="${backOpt.next}">${backOpt.label}</button>`;
+  if(submitOpt) html += `<button type="submit">${submitOpt.label}</button>`;
+  html += `</div><small class="warning">Please share <strong>work contact details only</strong>. Do not include patient identifiers (no PHI).</small></form>`;
   setTimeout(()=>{
-    const form = document.getElementById(formId);
-    form.addEventListener('click', (e)=>{
-      const btn = e.target.closest('button[type="button"]');
-      if(!btn) return;
-      const next = btn.dataset.next;
-      if(next){
-        addUserMessage(btn.textContent.trim());
-        renderNode(next);
-      }
+    const form=document.getElementById(formId);
+    form.addEventListener('click',(e)=>{
+      const btn=e.target.closest('button[type="button"]'); if(!btn) return;
+      const next=btn.dataset.next; if(next){ addUserMessage(btn.textContent.trim()); renderNode(next); }
     });
-    form.addEventListener('submit', (e)=>{
+    form.addEventListener('submit',(e)=>{
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-      const emailKey = Object.keys(data).find(k=>/email/i.test(k));
-      if(emailKey && data[emailKey] && !/.+@.+\..+/.test(data[emailKey])){
-        alert('Please provide a valid work email.');
-        return;
-      }
+      const data=Object.fromEntries(new FormData(form).entries());
+      const emailKey=Object.keys(data).find(k=>/email/i.test(k));
+      if(emailKey && data[emailKey] && !/.+@.+\..+/.test(data[emailKey])){ alert('Please provide a valid work email.'); return; }
       addUserMessage('Submit');
       addBotMessage(`<small>Thanks! Your details were received (demo only).</small>`);
-      if(submitOpt && submitOpt.next){
-        renderNode(submitOpt.next);
-      }
+      if(submitOpt && submitOpt.next) renderNode(submitOpt.next);
     });
   },0);
-
   return html;
 }
-
 function renderNode(nodeId){
-  const node = (FLOW && FLOW.nodes) ? FLOW.nodes[nodeId] : null;
+  const node=(FLOW&&FLOW.nodes)?FLOW.nodes[nodeId]:null;
   if(!node){
     addBotMessage(`<div class="title">Assistant</div>Hmm—this step isn’t available yet. Returning to start.`);
-    historyStack.length = 0;
-    if(FLOW) renderNode(FLOW.start || 'WELCOME');
-    return;
+    historyStack.length=0; if(FLOW) renderNode(FLOW.start||'WELCOME'); return;
   }
-  if(historyStack[historyStack.length-1] !== nodeId){
-    historyStack.push(nodeId);
-  }
-  let html = `<div class="title">Assistant</div>${node.message || ''}`;
-  if(Array.isArray(node.fields) && node.fields.length){
-    html += renderForm(node);
-  }
-  if(Array.isArray(node.options) && node.options.length){
-    html += renderOptions(node.options);
-  }
+  if(historyStack[historyStack.length-1]!==nodeId) historyStack.push(nodeId);
+  let html=`<div class="title">Assistant</div>${node.message||''}`;
+  if(Array.isArray(node.fields)&&node.fields.length) html+=renderForm(node);
+  if(Array.isArray(node.options)&&node.options.length) html+=renderOptions(node.options);
   addBotMessage(html);
 }
 
 /* Navigation */
-backBtn.addEventListener('click', ()=>{
-  historyStack.pop();
-  const prev = historyStack.pop();
-  if(prev){ renderNode(prev); }
-});
-restartBtn.addEventListener('click', ()=>{
-  historyStack.length = 0;
-  chat.innerHTML = '';
-  if(FLOW) renderNode(FLOW.start || 'WELCOME');
-});
-scrollBtn.addEventListener('click', ()=> chat.scrollTop = chat.scrollHeight);
+document.getElementById('back').addEventListener('click', ()=>{ historyStack.pop(); const prev=historyStack.pop(); if(prev) renderNode(prev); });
+document.getElementById('restart').addEventListener('click', ()=>{ historyStack.length=0; chat.innerHTML=''; if(FLOW) renderNode(FLOW.start||'WELCOME'); });
+document.getElementById('scroll').addEventListener('click', ()=> chat.scrollTop=chat.scrollHeight);
 
-/* Load JSON (serve over http:// or https://) */
+/* Load JSON (use local server for fetch) */
 async function tryLoadDefault(){
   try{
-    const res = await fetch(DEFAULT_FLOW_URL, {cache:'no-store'});
-    if(!res.ok) throw new Error('Fetch failed');
-    FLOW = await res.json();
-    flowStatus.textContent = 'loaded';
-    jsonLoader.classList.add('hidden');
-    chat.innerHTML = '';
-    renderNode(FLOW.start || 'WELCOME');
+    const res=await fetch(DEFAULT_FLOW_URL,{cache:'no-store'}); if(!res.ok) throw new Error('Fetch failed');
+    FLOW=await res.json(); flowStatus.textContent='loaded'; jsonLoader.classList.add('hidden'); chat.innerHTML=''; renderNode(FLOW.start||'WELCOME');
   }catch(err){
-    flowStatus.textContent = 'not found';
-    jsonLoader.classList.remove('hidden');
-    addBotMessage(`<div class="title">Assistant</div>
-      I couldn’t auto-load <code>${DEFAULT_FLOW_URL}</code>. 
-      Drag & drop your JSON here or use the picker below.`);
+    flowStatus.textContent='not found'; jsonLoader.classList.remove('hidden');
+    addBotMessage(`<div class="title">Assistant</div>I couldn’t auto-load <code>${DEFAULT_FLOW_URL}</code>.<br>Drag & drop your JSON here or use the picker below.`);
   }
 }
 document.getElementById('file').addEventListener('change', async (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const text = await file.text();
-  FLOW = JSON.parse(text);
-  flowStatus.textContent = 'loaded (manual)';
-  chat.innerHTML = '';
-  renderNode(FLOW.start || 'WELCOME');
+  const f=e.target.files[0]; if(!f) return; const text=await f.text(); FLOW=JSON.parse(text);
+  flowStatus.textContent='loaded (manual)'; chat.innerHTML=''; renderNode(FLOW.start||'WELCOME');
 });
-document.addEventListener('dragover', (e)=>{ e.preventDefault(); });
+document.addEventListener('dragover',(e)=>e.preventDefault());
 document.addEventListener('drop', async (e)=>{
-  e.preventDefault();
-  const f = e.dataTransfer.files?.[0];
-  if(!f) return;
-  const text = await f.text();
-  FLOW = JSON.parse(text);
-  flowStatus.textContent = 'loaded (manual)';
-  chat.innerHTML = '';
-  renderNode(FLOW.start || 'WELCOME');
+  e.preventDefault(); const f=e.dataTransfer.files?.[0]; if(!f) return;
+  const text=await f.text(); FLOW=JSON.parse(text); flowStatus.textContent='loaded (manual)'; chat.innerHTML=''; renderNode(FLOW.start||'WELCOME');
 });
 
-/* Start (only when authenticated) */
-if (!app.classList.contains('hidden')) {
-  tryLoadDefault();
-} else {
-  // When auth completes, kick off loading
-  const observer = new MutationObserver(()=>{
-    if (!app.classList.contains('hidden')) { tryLoadDefault(); observer.disconnect(); }
-  });
-  observer.observe(app, { attributes:true, attributeFilter:['class'] });
+/* Init sequence (after auth) */
+function initAfterReveal(){ initTheme(); tryLoadDefault(); }
+if(!app.classList.contains('hidden')){ initAfterReveal(); } // already authed
+else{ // wait for auth to reveal
+  const obs=new MutationObserver(()=>{ if(!app.classList.contains('hidden')){ initAfterReveal(); obs.disconnect(); } });
+  obs.observe(app,{attributes:true, attributeFilter:['class']});
 }
 </script>
 </body>
